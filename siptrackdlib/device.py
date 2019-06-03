@@ -64,6 +64,9 @@ class Device(treenodes.BaseNode):
 
     def _remove(self, user):
         ret = super(Device, self)._remove(user)
+        # TODO: Test if this is necessary to keep because Device.remove()
+        # is already calling branch.remove recursively so why keep
+        # the remove_children storage action?
         self.storageAction('remove_children', {'child_type': 'EL'})
         return ret
 

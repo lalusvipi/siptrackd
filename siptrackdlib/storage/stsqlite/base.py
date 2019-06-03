@@ -26,7 +26,7 @@ sqltables = [
         (
             parent_oid varchar(16),
             oid varchar(16),
-            class_id varchar(16),
+            class_id varchar(16)
         )
         """,
         """
@@ -56,9 +56,9 @@ sqltables = [
         )
         """,
         """create index nodedata_oid_idx on nodedata (oid)""",
+        """create index idmap_oid_idx on idmap (oid)""",
         """create index associations_self_oid_idx on associations (self_oid)""",
         """create index device_config_data_oid_idx on device_config_data (oid)""",
-        """create index idmap_oid_idx on idmap (oid)""",
         ]
 
 sqltables_1_to_2 = [

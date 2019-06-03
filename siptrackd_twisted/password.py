@@ -56,9 +56,16 @@ class PasswordRPC(baserpc.BaseRPC):
         password = self.getOID(session, oid)
         password.setPassword(session.user, new_password)
         yield password.commit()
-        if password.class_name == 'password' and password.parent.class_name == 'device':
+        cls_name = password.class_name
+        parent_cls_name = password.parent.class_name
+        if cls_name == 'password' and parent_cls_name == 'device':
             data = {'device_user': password.getAttributeValue('username', '')}
-            password.parent.addEventLog('device password updated', data, session.user, affects=password.parent)
+            password.parent.addEventLog(
+                'device password updated',
+                data,
+                session.user,
+                affects=password.parent
+            )
         defer.returnValue(True)
 
     @helpers.ValidateSession()
@@ -67,23 +74,49 @@ class PasswordRPC(baserpc.BaseRPC):
         """Change a Passwords password key."""
         password = self.getOID(session, oid)
         event_data = {}
+
         if password.password_key:
             old_key_name = password.password_key.getAttributeValue('name', '')
             event_data.update({'old_password_key_name': old_key_name})
         else:
             event_data.update({'old_password_key_name': 'None'})
+
         new_password_key = None
+
         if new_password_key_oid:
-            new_password_key = self.object_store.getOID(new_password_key_oid, 'password key', session.user)
+            new_password_key = self.object_store.getOID(
+                new_password_key_oid,
+                'password key',
+                session.user
+            )
+
         password.setPasswordKey(session.user, new_password_key)
         yield password.commit()
-        if password.class_name == 'password' and password.parent.class_name == 'device':
-            event_data.update({'device_user': password.getAttributeValue('username', '')})
-            if event_data['old_password_key_name'] is not None and password.password_key:
-                event_data.update({'new_password_key_name': password.password_key.getAttributeValue('name', '')})
+
+        cls_name = password.class_name
+        parent_cls_name = password.parent.class_name
+        if cls_name == 'password' and parent_cls_name == 'device':
+            event_data.update(
+                {'device_user': password.getAttributeValue('username', '')}
+            )
+
+            old_key_name = event_data.get('old_password_key_name')
+            if old_key_name is not None and password.password_key:
+                new_key_name = password.password_key.getAttributeValue(
+                    'name', ''
+                )
+                event_data.update(
+                    {'new_password_key_name': new_key_name}
+                )
             elif not password.password_key:
                 event_data.update({'new_password_key_name': 'None'})
-        password.parent.addEventLog('password key updated', event_data, session.user, affects=password.parent)
+
+        password.parent.addEventLog(
+            'password key updated',
+            event_data,
+            session.user,
+            affects=password.parent
+        )
         defer.returnValue(True)
 
 class PasswordKeyRPC(baserpc.BaseRPC):

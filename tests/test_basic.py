@@ -1,7 +1,6 @@
-import os
 from twisted.internet import defer
-
 from utils import BasicTestCase
+
 
 class TestBasic(BasicTestCase):
     def testGetOID0(self):

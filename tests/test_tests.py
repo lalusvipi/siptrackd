@@ -1,5 +1,6 @@
 from utils import BasicTestCase
 
+
 def raise_exception(a):
     raise Exception(a)
 

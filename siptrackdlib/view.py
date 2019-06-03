@@ -46,10 +46,21 @@ class ViewTree(treenodes.BaseNode):
         um = yield defer.maybeDeferred(self._user_manager.get)
         if um is None:
             user_manager = self.add(None, 'user manager local')
-            attr = user_manager.add(None, 'attribute', 'name', 'text', 'default user manager')
+            attr = user_manager.add(
+                None,
+                'attribute',
+                'name',
+                'text',
+                'default user manager'
+            )
             self._user_manager.set(user_manager)
-            user = user_manager.add(None, 'user local', username = 'admin',
-                                    password = 'admin', administrator = True)
+            user = user_manager.add(
+                None,
+                'user local',
+                username='admin',
+                password='admin',
+                administrator=True
+            )
             yield self.object_store.commit([self, user_manager, attr, user])
 
     @defer.inlineCallbacks
@@ -58,7 +69,12 @@ class ViewTree(treenodes.BaseNode):
             yield view._initEventLogTree()
 
     def setActiveUserManager(self, user_manager):
-        if type(user_manager) not in [user.UserManagerLocal, user.UserManagerLDAP, user.UserManagerActiveDirectory]:
+        valid_types = [
+            user.UserManagerLocal,
+            user.UserManagerLDAP,
+            user.UserManagerActiveDirectory
+        ]
+        if type(user_manager) not in valid_types:
             raise errors.SiptrackError('not a valid user manager')
         self._user_manager.set(user_manager)
 

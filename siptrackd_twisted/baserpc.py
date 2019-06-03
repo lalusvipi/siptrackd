@@ -36,6 +36,7 @@ class BaseRPC(xmlrpc.XMLRPC):
     def xmlrpc_delete(self, session, oid, recursive = True):
         """Delete a node."""
         node = self.getOID(session, oid)
+        # TODO: Add more conditionals here for 'device category' perhaps?
         if node.parent.class_name == 'device' and node.class_name == 'password':
             data = {'device_user': node.getAttributeValue('username', '')}
             node.parent.addEventLog('device user removed', data, session.user, affects=node.parent)

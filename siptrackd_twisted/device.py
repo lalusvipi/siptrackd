@@ -18,7 +18,12 @@ class DeviceRPC(baserpc.BaseRPC):
         parent = self.object_store.getOID(parent_oid, user = session.user)
         device = parent.add(session.user, 'device')
         device.addEventLog('create device', user=session.user)
-        log = device.getParent('view').event_log_tree.addEventLog('create device', {'oid': device.oid}, user=session.user, affects=device)
+        log = device.getParent('view').event_log_tree.addEventLog(
+            'create device',
+            {'oid': device.oid},
+            user=session.user,
+            affects=device
+        )
         yield self.object_store.commit(device)
         defer.returnValue(device.oid)
 
@@ -27,9 +32,22 @@ class DeviceRPC(baserpc.BaseRPC):
     def xmlrpc_delete(self, session, oid, prune_networks = True):
         """Delete a device."""
         device = self.getOID(session, oid)
-        log = device.getParent('view').event_log_tree.addEventLog('remove device', {'oid': device.oid, 'device_name': device.getAttributeValue('name', '')}, user=session.user, affects=device)
+        log = device.getParent('view').event_log_tree.addEventLog('remove device', {'oid': device.oid, 'name': device.getAttributeValue('name', '')}, user=session.user, affects=device)
         updated = device.delete(recursive = True, user = session.user,
                 prune_networks = prune_networks)
+        log = device.getParent('view').event_log_tree.addEventLog(
+            'remove device',
+            {
+                'oid': device.oid,
+                'name': device.getAttributeValue('name', '')
+            },
+            user=session.user,
+            affects=device
+        )
+        updated = device.delete(
+            recursive=True,
+            user=session.user,
+            prune_networks=prune_networks)
         yield self.object_store.commit(updated)
         defer.returnValue(True)
 

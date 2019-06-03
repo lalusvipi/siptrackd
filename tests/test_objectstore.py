@@ -1,9 +1,8 @@
-import os
-
-from utils import (BasicTestCase, StandardTestCase)
+from utils import BasicTestCase
 import siptrackdlib.errors
 
-class TestObjectStore(StandardTestCase):
+
+class TestObjectStore(BasicTestCase):
     def testGetMissingOID(self):
         self.assertRaises(
             siptrackdlib.errors.NonExistent,

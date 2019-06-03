@@ -1,8 +1,6 @@
-import unittest
-import tempfile
-import shutil
 import os
-import logging
+import shutil
+import tempfile
 from ConfigParser import RawConfigParser
 
 from twisted.trial import unittest
@@ -13,12 +11,16 @@ import siptrackdlib
 from siptrackdlib.storage import stsqlite
 
 
-@defer.inlineCallbacks
-def make_object_store(config):
-    storage = siptrackdlib.storage.load(
+def make_storage(config):
+    return siptrackdlib.storage.load(
         'stsqlite',
         config
     )
+
+
+@defer.inlineCallbacks
+def make_object_store(config):
+    storage = make_storage(config)
     searcher = siptrackdlib.search.get_searcher('whoosh')
     object_store = siptrackdlib.ObjectStore(
         storage,
@@ -51,24 +53,7 @@ class BasicTestCase(unittest.TestCase):
             return
         shutil.rmtree(dir)
 
-
-class StandardTestCase(BasicTestCase):
-    @defer.inlineCallbacks
-    def setUp(self):
-        super(StandardTestCase, self).setUp()
-        self.object_store = yield make_object_store(self.config)
-
-    def tearDown(self):
-        super(StandardTestCase, self).tearDown()
-
     @defer.inlineCallbacks
     def reloadObjectStore(self):
         yield self.object_store.reload()
-
-def run_tests(test_modules):
-    alltest = unittest.TestSuite()
-    for module in test_modules:
-        module = __import__(module)
-        alltest.addTest(unittest.findTestCases(module))
-    unittest.TextTestRunner(verbosity=2).run(alltest)
 

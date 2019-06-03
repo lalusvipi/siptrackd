@@ -54,10 +54,10 @@ class AttributeRPC(baserpc.BaseRPC):
         # and extract the data.
         if attribute.atype == 'binary':
             try:
-                value = str(value)
+                value = value.data
             except:
                 raise siptrackdlib.errors.SiptrackError('attribute value doesn\'t match type')
-        attribute._set_value(value)
+        attribute.value = value
         if attribute.parent.class_name == 'device':
             attribute.parent.addEventLog(
                 'update attribute',
@@ -172,6 +172,13 @@ class EncryptedAttributeRPC(baserpc.BaseRPC):
         """Create a new attribute."""
         parent = self.object_store.getOID(parent_oid, user = session.user)
         obj = parent.add(session.user, 'encrypted attribute', name, atype, value)
+        if parent.class_name == 'device':
+            parent.addEventLog(
+                'create attribute',
+                {'name': name},
+                session.user,
+                affects=obj
+            )
         yield self.object_store.commit(obj)
         defer.returnValue(obj.oid)
 
@@ -182,6 +189,13 @@ class EncryptedAttributeRPC(baserpc.BaseRPC):
         """Set an existing attributes value."""
         attribute = self.getOID(session, oid)
         attribute.value = value
+        if attribute.parent.class_name == 'device':
+            attribute.parent.addEventLog(
+                'update attribute',
+                {'name': attribute.name},
+                session.user,
+                affects=attribute
+            )
         yield self.object_store.commit(attribute)
         defer.returnValue(True)
 
