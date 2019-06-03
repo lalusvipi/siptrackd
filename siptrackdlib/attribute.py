@@ -12,7 +12,7 @@ from siptrackdlib import log
 class AttributeBase(treenodes.BaseNode):
     def regmatch(self, re_pattern, name = None):
         """See if the attributes value matches a regexp.
-        
+
         If the passed in re_pattern isn't a string assume it's a precompiled
         regexp.
         """
@@ -280,7 +280,6 @@ class VersionedAttribute(AttributeBase):
 
     def _pruneValues():
         """Prune the number of stored values.
-        
         This makes sure we never store more than max_values.
         Used after max_versions has been set.
         """
@@ -369,7 +368,6 @@ class EncryptedAttribute(AttributeBase):
         while parent.class_id in ['VA', 'CA', 'ENCA']:
             parent = parent.parent
         return parent
-    
 
     def getAttribute(self, user):
         parent = self.getParentNode()
@@ -401,7 +399,6 @@ class EncryptedAttribute(AttributeBase):
             raise errors.SiptrackError('invalid atype: "{atype"}'.format(
                 atype=self._atype
             ))
-        
         if not isinstance(val, (unicode, str)):
             raise errors.SiptrackError(
                 'attribute value must be unicode or str'
@@ -412,7 +409,6 @@ class EncryptedAttribute(AttributeBase):
 
         if not self._pk.canEncryptDecrypt(None, user):
             raise errors.SiptrackError('Unable to access password key')
-        
         self.user = user
 
         enc_val, self.lock_data = self._pk.encrypt(val, None, self.user)
